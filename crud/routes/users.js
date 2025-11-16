@@ -7,11 +7,13 @@ var users = [
     first_name: 'Maciej',
     last_name: 'Paluszynski',
     email: 'mpal@uni.wroc.pl',
+    id: uuidv4(),
   },
   {
     first_name: 'Bartosz',
     last_name: 'Bednarczyk',
     email: 'bbe@uni.wroc.pl',
+    id: uuidv4(),
   },
 ];
 
@@ -24,15 +26,23 @@ router.get('/:id', (req, res) => {
 
   const foundUser = users.find((user) => user.id === id);
 
-  res.send(foundUser);
+  if(!foundUser) {
+    res.status(404).send('User not found');
+  } else {
+    res.status(200).send(foundUser);
+  }
 });
 
 router.post('/', (req, res) => {
   const user = req.body;
 
-  users.push({ ...user, id: uuidv4() });
+  if(!user) {
+    res.status(400).send('User is missing');
+  } else {
+    users.push({ ...user, id: uuidv4() });
 
-  res.send(`${user.first_name} has been added`);
+    res.status(200).send(`${user.first_name} has been added`);
+  }
 });
 
 router.delete('/:id', (req, res) => {
@@ -40,7 +50,7 @@ router.delete('/:id', (req, res) => {
 
   users = users.filter((user) => user.id !== id);
 
-  res.send(`${id} deleted from db`);
+  res.status(200).send(`${id} deleted from db`);
 });
 
 router.patch('/:id', (req, res) => {
@@ -50,11 +60,14 @@ router.patch('/:id', (req, res) => {
 
   const user = users.find((user) => user.id === id);
 
-  if(first_name) user.first_name = first_name;
-  if(last_name) user.last_name = last_name;
-  if(email) user.email = email;
-
-  res.send(`User ${id} updated`);
+  if(!user) {
+    res.status(404).send("User not found");
+  } else {
+    if(first_name) user.first_name = first_name;
+    if(last_name) user.last_name = last_name;
+    if(email) user.email = email;
+    res.status(200).send(`User ${id} updated`);
+  }
 });
 
 export default router
